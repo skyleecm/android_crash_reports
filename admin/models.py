@@ -32,8 +32,7 @@ class AccessToken(ndb.Model):
 
     @classmethod
     def delete_token(cls, token_value):
-        query = cls.query()
-        query.filter(cls.token == token_value)
+        query = cls.query(cls.token == token_value)
         token = query.get()
         if token:
             token.key.delete()

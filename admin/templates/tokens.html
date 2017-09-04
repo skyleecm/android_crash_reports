@@ -20,9 +20,9 @@
       $(document).ready(function() {
         $('.delete-btn').click(function() {
           $.ajax({
-            url: '/admin/tokens',
+            url: '/admin/tokens/'+$(this).data('token'),
             type: 'DELETE',
-            data: { 'token': $(this).data('token') },
+            //data: { 'token': $(this).data('token') },
             success: function(result) {
               document.location.reload(true);
             }
