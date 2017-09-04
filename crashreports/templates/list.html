@@ -1,7 +1,25 @@
 <html>
   <body>
     {% for r in reports %}
-    <p><a href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">{{ r.stack_summary }}</a></p>
+    <p><a href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">{{ r.stack_summary }}</a>
+        <button class="delete-btn" data-id="{{ r|get_id }}">delete</button>
+    </p>
     {% endfor %}
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+    <script>
+      $(document).ready(function() {
+        $('.delete-btn').click(function() {
+          $.ajax({
+            url: '/reports/package/{{ package_name }}/id/'+$(this).data('id'),
+            type: 'DELETE',
+            success: function(result) {
+              document.location.reload(true);
+            }
+          });    
+        });
+      });
+    </script>
   </body>
 </html>

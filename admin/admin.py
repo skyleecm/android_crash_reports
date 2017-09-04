@@ -38,8 +38,9 @@ class AccessTokenHandler(webapp2.RequestHandler):
         tokens = AccessToken.get_all()
         self.render_template(tokens)
 
-    def delete(self):
-        token = AccessToken.delete_token(self.request.get('token'))
+    def delete(self, token):
+        #token = AccessToken.delete_token(self.request.get('token'))
+        token = AccessToken.delete_token(token)
         tokens = AccessToken.get_all()
         self.render_template(tokens)
         
@@ -54,4 +55,5 @@ class AccessTokenHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/admin/config', ConfigHandler),
     ('/admin/tokens', AccessTokenHandler),
+    ('/admin/tokens/(\w+)', AccessTokenHandler),
     ], debug=True)

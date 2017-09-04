@@ -27,6 +27,7 @@ class CrashReporsForPackageHandler(webapp2.RequestHandler):
 
         template_values = {
             'reports': reports,
+            'package_name': package_name,
         }
         
         path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
@@ -43,6 +44,18 @@ class CrashReportHandler(webapp2.RequestHandler):
 
         path = os.path.join(os.path.dirname(__file__), 'templates/crashreport.html')
         self.response.out.write(template.render(path, template_values))
+
+    def delete(self, package_name, report_id):
+        group = CrashReportGroup.get_group(package_name)
+        report = CrashReport.get_by_id(long(report_id), parent=group.key)
+        self.response.headers['Content-Type'] = 'text/plain'
+        #self.redirect('/reports/package/' + package_name)
+        if report:
+            report.key.delete()
+            self.response.write('Report %d deleted' % report.key.id())
+        else:
+            self.response.set_status(404)
+            self.response.write('Invalid report')
 
 app = webapp2.WSGIApplication([
     ('/reports/all',                    CrashReportListHandler),
