@@ -1,11 +1,17 @@
 import os
+import sys
 import webapp2
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
-from models import CrashReport, CrashReportGroup
+if sys.version_info.major < 3:
+    from google.appengine.ext.webapp import template
+else:
+    import template
+
+from .models import CrashReport, CrashReportGroup
 from utils.decorators import cached
 
-webapp.template.register_template_library('crashreports.templatefilters')
+if sys.version_info.major < 3:
+    from google.appengine.ext import webapp
+    webapp.template.register_template_library('crashreports.templatefilters')
 
 class CrashReportListHandler(webapp2.RequestHandler):
     def get(self):
@@ -36,7 +42,7 @@ class CrashReporsForPackageHandler(webapp2.RequestHandler):
 class CrashReportHandler(webapp2.RequestHandler):
     def get(self, package_name, report_id):
         group = CrashReportGroup.get_group(package_name)
-        report = CrashReport.get_by_id(long(report_id), parent=group.key)
+        report = CrashReport.get_by_id(int(report_id), parent=group.key)
 
         template_values = {
             'report': report,
@@ -47,7 +53,7 @@ class CrashReportHandler(webapp2.RequestHandler):
 
     def delete(self, package_name, report_id):
         group = CrashReportGroup.get_group(package_name)
-        report = CrashReport.get_by_id(long(report_id), parent=group.key)
+        report = CrashReport.get_by_id(int(report_id), parent=group.key)
         self.response.headers['Content-Type'] = 'text/plain'
         #self.redirect('/reports/package/' + package_name)
         if report:
@@ -57,8 +63,10 @@ class CrashReportHandler(webapp2.RequestHandler):
             self.response.set_status(404)
             self.response.write('Invalid report')
 
-app = webapp2.WSGIApplication([
+routes = [
     ('/reports/all',                    CrashReportListHandler),
     ('/reports/package/(.*)/id/(\d+)',  CrashReportHandler),
     ('/reports/package/(.*)',           CrashReporsForPackageHandler),
-    ], debug=True)
+]
+if sys.version_info.major < 3:
+    app = webapp2.WSGIApplication(routes, debug=True)

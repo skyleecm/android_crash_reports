@@ -1,12 +1,27 @@
 import os
-import urlparse
+import sys
 import webapp2
-from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp.util import login_required
+if sys.version_info.major < 3:
+    import urlparse
+    from google.appengine.ext.webapp import template
+    from google.appengine.ext.webapp.util import login_required
+    from pivotaltracker.api import PivotalApi
+else:
+    import urllib.parse as urlparse
+    import template
+    from google.appengine.api import users
+    def login_required(handler_method): 
+        def check_login(self, *args):
+            user = users.get_current_user()
+            if user:
+                handler_method(self, *args)
+            else:
+                self.abort(401)
+        return check_login
+
 from dateutil import parser as dateparser
-from models import CrashReport, CrashReportGroup
+from .models import CrashReport, CrashReportGroup
 from admin.models import Config, AccessToken
-from pivotaltracker.api import PivotalApi
 
 class NewCrashReportHandler(webapp2.RequestHandler):
     def post(self):
@@ -113,7 +128,10 @@ class NewCrashReportHandler(webapp2.RequestHandler):
 class CrashReportHandler(webapp2.RequestHandler):
     @login_required
     def get(self, report_id):
-        report = CrashReport.get_by_id(long(report_id))
+        # onlyif 1 report_group
+        groups = CrashReportGroup.query().fetch(2)
+        report = CrashReport.get_by_id(int(report_id), 
+                parent=len(groups) == 1 and groups[0].key or None)
 
         template_values = {
             'report': report,
@@ -122,7 +140,9 @@ class CrashReportHandler(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'templates/crashreport.html')
         self.response.out.write(template.render(path, template_values))
 
-app = webapp2.WSGIApplication([
+routes = [
     ('/api/crashreport',        NewCrashReportHandler),
     ('/api/crashreport/(\d+)',  CrashReportHandler),
-    ], debug=True)
+]
+if sys.version_info.major < 3:
+    app = webapp2.WSGIApplication(routes, debug=True)

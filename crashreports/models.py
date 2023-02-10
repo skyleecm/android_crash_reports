@@ -51,4 +51,5 @@ class CrashReport(ndb.Model):
     @classmethod
     def for_package(cls, package_name):
         query = cls.query(cls.package_name == package_name)
+        query = query.order(- cls.created_at)
         return query.fetch()
