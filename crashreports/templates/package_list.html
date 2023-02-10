@@ -1,6 +1,6 @@
 <html>
   <body>
-    {% for package_name, report_count in reports.items %}
+    {% for package_name, report_count in reports.items() %}
     <p><a href="/reports/package/{{ package_name|urlencode }}">{{ package_name }}</a> ({{ report_count }})</p>
     {% endfor %}
   </body>

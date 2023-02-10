@@ -1,0 +1,4 @@
+appengine-python-standard>=1.0.0
+webapp2==3.0.0b1
+jinja2
+python-dateutil
