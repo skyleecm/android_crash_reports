@@ -1,8 +1,13 @@
 import os
+import sys
 import webapp2
 from google.appengine.ext import ndb
-from google.appengine.ext.webapp import template
-from models import Config, AccessToken
+if sys.version_info.major < 3:
+    from google.appengine.ext.webapp import template
+else:
+    import template
+
+from .models import Config, AccessToken
 
 class ConfigHandler(webapp2.RequestHandler):
     def get(self):
@@ -52,8 +57,10 @@ class AccessTokenHandler(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'templates/tokens.html')
         self.response.out.write(template.render(path, template_values))
 
-app = webapp2.WSGIApplication([
+routes = [
     ('/admin/config', ConfigHandler),
     ('/admin/tokens', AccessTokenHandler),
     ('/admin/tokens/(\w+)', AccessTokenHandler),
-    ], debug=True)
+]
+if sys.version_info.major < 3:
+    app = webapp2.WSGIApplication(routes, debug=True)
