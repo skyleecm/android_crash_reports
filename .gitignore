@@ -18,6 +18,9 @@ develop-eggs
 lib
 lib64
 
+# gcloud
+.gcloudignore
+
 # Installer logs
 pip-log.txt
 
