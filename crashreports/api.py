@@ -59,7 +59,7 @@ class NewCrashReportHandler(webapp2.RequestHandler):
             # e.g. 'accessToken = 390d904880974f369de5466c949cbaab 123 = abc'
             # Ugh. This is ugly.
             tokens = custom_data.rstrip('\n').replace(' = ', ' ').split(' ')
-            params = {tokens[i*2]: tokens[i*2+1] for i in range(len(tokens) / 2)}
+            params = {tokens[i*2]: tokens[i*2+1] for i in range(len(tokens) // 2)}
             return AccessToken.is_authorized(params['accessToken'])
 
     def parse_crash_report(self, request):
